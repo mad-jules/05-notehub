@@ -5,6 +5,7 @@ import type { NoteTag } from '../../types/note';
 import { useMutation } from '@tanstack/react-query';
 import { createNote, type CreateNotePayload } from '../../services/noteService';
 import toast from 'react-hot-toast';
+import { queryClient } from '../../main';
 
 interface NoteFormProps {
     onCancel: () => void;
@@ -39,6 +40,7 @@ export default function NoteForm({ onCancel }: NoteFormProps) {
         mutationFn: (newNote: CreateNotePayload) => createNote(newNote),
         onSuccess: (note) => {
             onCancel();
+            queryClient.invalidateQueries({ queryKey: ['notes'] });
             toast.success(`The note ${note.title} has been created.`);
         },
         onError: (error) => {
