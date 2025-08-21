@@ -9,10 +9,9 @@ import Pagination from '../Pagination/Pagination';
 import css from './App.module.css';
 import Modal from '../Modal/Modal';
 import NoteForm from '../NoteForm/NoteForm';
-import toast, { Toaster } from 'react-hot-toast';
-import { deleteNote, fetchNote } from '../../services/noteService';
-import { keepPreviousData, useMutation, useQuery } from '@tanstack/react-query';
-import { queryClient } from '../../main';
+import { Toaster } from 'react-hot-toast';
+import { fetchNote } from '../../services/noteService';
+import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import SearchBox from '../SearchBox/SearchBox';
 import { useDebouncedCallback } from 'use-debounce';
 import { Loader } from '../Loader/Loader';
@@ -32,25 +31,11 @@ export default function App() {
 
     const debounced = useDebouncedCallback((value) => {
         setSearch(value);
+        setPage(1);
     }, 1000);
-
-    const mutation = useMutation({
-        mutationFn: (id: string) => deleteNote(id),
-        onSuccess: (note) => {
-            queryClient.invalidateQueries({ queryKey: ['notes'] });
-            toast.success(`The note ${note.title} has been deleted.`);
-        },
-        onError: (error) => {
-            toast.error(error.message);
-        },
-    });
 
     function handleOnClose() {
         setIsOpen(false);
-    }
-
-    function handleDelete(id: string) {
-        mutation.mutate(id);
     }
 
     return (
@@ -76,7 +61,7 @@ export default function App() {
                     <div>Notes not found</div>
                 )}
                 {data && data.notes.length > 0 && (
-                    <NoteList notes={data.notes} onDelete={handleDelete} />
+                    <NoteList notes={data.notes} />
                 )}
                 {isOpen && (
                     <Modal

@@ -2,22 +2,21 @@ import { ErrorMessage, Field, Form, Formik } from 'formik';
 import css from './NoteForm.module.css';
 import * as Yup from 'yup';
 import type { NoteTag } from '../../types/note';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { createNote, type CreateNotePayload } from '../../services/noteService';
 import toast from 'react-hot-toast';
-import { queryClient } from '../../main';
 
 interface NoteFormProps {
     onCancel: () => void;
 }
 
-interface OrderFormValues {
+interface NoteFormValues {
     title: string;
     content: string;
     tag: NoteTag;
 }
 
-const initialValues: OrderFormValues = {
+const initialValues: NoteFormValues = {
     title: '',
     content: '',
     tag: 'Todo',
@@ -25,9 +24,9 @@ const initialValues: OrderFormValues = {
 
 const tagValue: NoteTag[] = ['Work', 'Personal', 'Meeting', 'Shopping', 'Todo'];
 
-const OrderFormSchema = Yup.object().shape({
+const NoteFormSchema = Yup.object().shape({
     title: Yup.string()
-        .min(3, 'Name must be at least 2 characters')
+        .min(3, 'Name must be at least 3 characters')
         .max(50, 'Name is too long')
         .required('Name is required'),
     content: Yup.string().max(500, 'Name is too long'),
@@ -35,6 +34,7 @@ const OrderFormSchema = Yup.object().shape({
 });
 
 export default function NoteForm({ onCancel }: NoteFormProps) {
+    const queryClient = useQueryClient();
     const mutation = useMutation({
         mutationKey: ['notes'],
         mutationFn: (newNote: CreateNotePayload) => createNote(newNote),
@@ -57,7 +57,7 @@ export default function NoteForm({ onCancel }: NoteFormProps) {
                     onSuccess: () => resetForm(),
                 });
             }}
-            validationSchema={OrderFormSchema}
+            validationSchema={NoteFormSchema}
         >
             <Form className={css.form}>
                 <div className={css.formGroup}>
